@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors")
 const app = express();
 const mongoose = require("mongoose");
 const passport = require("passport");
@@ -22,6 +23,13 @@ connectDB();
 
 //Using EJS for views
 app.set("view engine", "ejs");
+
+// Enable CORS for all routes
+app.use(cors({
+  origin: "http://localhost:5173", // Allow requests from this origin
+  methods: ["GET", "POST", "PUT", "DELETE"], // Allow these HTTP methods
+  credentials: true, // Allow cookies and credentials
+}));
 
 //Static Folder
 app.use(express.static("public"));
@@ -59,5 +67,5 @@ app.use("/post", postRoutes);
 
 //Server Running
 app.listen(process.env.PORT, () => {
-  console.log("Server is running, you better catch it!");
+  console.log(`Server running in ${process.env.NODE_ENV}`);
 });
