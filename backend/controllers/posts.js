@@ -31,24 +31,22 @@ module.exports = {
   createPost: async (req, res) => {
     try {
       // Upload image to cloudinary
-      const result = await cloudinary.uploader.upload(req.file.path);
+      // const result = await cloudinary.uploader.upload(req.file.path);
 
       await Post.create({
         firstName: req.body.firstName,
         lastName: req.body.lastName,
         phone: req.body.phone,
-        subscription: {
-          startDate: new Date(req.body.startDate),
-          endDate: new Date(req.body.endDate),
-          amount: req.body.amount,
-        },
-        image: result.secure_url,
-        cloudinaryId: result.public_id,
-        user: req.user.id,
+        startDate: new Date(req.body.startDate),
+        endDate: new Date(req.body.endDate),
+        amount: req.body.amount,
+        // image: result.secure_url,
+        // cloudinaryId: result.public_id,
+        // user: req.user.id,
       });
-      console.log(result)
+      // console.log(result)
       console.log("Post has been added!");
-      res.redirect("/profile");
+      res.redirect("/dashboard");
     } catch (err) {
       console.log(err);
     }

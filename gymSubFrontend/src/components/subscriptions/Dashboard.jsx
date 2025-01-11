@@ -1,13 +1,26 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, memo } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
+
+  const navigate = useNavigate();
+
   const [subscribers, setSubscribers] = useState([]);
 
-  const [formData, setFormData] = useState({
-    name: "",
-    startDate: "",
-    endDate: "",
-  });
+  
+    const [formData, setFormData] = useState({
+      firstName: "",
+      lastName: "",
+      phone: "",
+      startDate: "",
+      endDate: "",
+      amount: "",
+      image: null,
+    })
+  
+  // State to manage loading and error states
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -16,41 +29,70 @@ const Dashboard = () => {
       [name]: value,
     });
   };
+  const handleFileChange = (e) => {
+    setFormData({
+      ...formData,
+      image: e.target.files[0], // Store the selected file
+    });
+  };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setIsLoading(true); // Set loading state to true
+    setError(null); // Clear any previous errors
+  
     // Basic validation
-    if (!formData.firstName || formData.lastName || !formData.startDate || !formData.endDate) {
+    if (!formData.firstName || !formData.lastName || !formData.startDate || !formData.endDate) {
       alert("Please fill in all fields");
+      setIsLoading(false); // Reset loading state
       return;
     }
-
-    // Calculate days remaining
-    const endDate = new Date(formData.endDate);
-    const today = new Date();
-    const daysRemaining = Math.ceil((endDate - today) / (1000 * 60 * 60 * 24));
-
-    // Add new subscriber
-    const newSubscriber = {
-      id: subscribers.length + 1,
-      firstName: formData.firstName,
-      lastName: formData.lastName,
-      startDate: formData.startDate,
-      endDate: formData.endDate,
-      daysRemaining: daysRemaining > 0 ? daysRemaining : 0,
-      status: daysRemaining > 0 ? "Active" : "Expired",
-    };
-
-    setSubscribers([...subscribers, newSubscriber]);
-
-    // Reset form
-    setFormData({
-      firstName: "",
-      lastName: "",
-      startDate: "",
-      endDate: "",
-    });
+  
+    try {
+      // Create a FormData object for file upload
+      const formDataToSend = new FormData();
+      formDataToSend.append("firstName", formData.firstName);
+      formDataToSend.append("lastName", formData.lastName);
+      formDataToSend.append("phone", formData.phone);
+      formDataToSend.append("startDate", formData.startDate);
+      formDataToSend.append("endDate", formData.endDate);
+      formDataToSend.append("amount", formData.amount);
+      // if (formData.image) {
+      //   formDataToSend.append("image", formData.image); // Append the image file
+      // }
+      console.log(formDataToSend)
+      // Make a POST request to the backend server
+      const response = await fetch("http://localhost:2121/post/createPost", {
+        method: "POST",
+        body: formDataToSend, // Use formDataToSend instead of JSON.stringify(formData)
+        // Do not set Content-Type header manually for FormData
+      });
+  
+      // Check if the response is successful
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+  
+      // Parse the response JSON
+      const result = await response.json();
+      console.log("Success:", result);
+  
+      // Reset the form after successful submission
+      setFormData({
+        firstName: "",
+        lastName: "",
+        phone: "",
+        startDate: "",
+        endDate: "",
+        amount: "",
+        image: null,
+      });
+    } catch (error) {
+      console.error("Error:", error);
+      setError("Failed to submit the form. Please try again."); // Set error message
+    } finally {
+      setIsLoading(false); // Set loading state to false
+    }
   };
 
   const handleEdit = (id) => {
@@ -80,11 +122,13 @@ const Dashboard = () => {
     };
   
     fetchSubscribers();
-  }, []); // Re-fetch when `query` changes
+  }, []); 
 
   return (
     <div className="dashboard">
       <h1>Subscriber Dashboard</h1>
+      <button  onClick={() => navigate("/logout")}>Logout</button>
+
       {/* Add New Subscriber Form */}
       <div className="form-container">
         <h2>Add New Subscriber</h2>
@@ -133,6 +177,37 @@ const Dashboard = () => {
               required
             />
           </div>
+          <div className="form-group">
+            <label htmlFor="phone">Phone Number</label>
+            <input
+              type="text"
+              id="phone"
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              required
+            />
+          </div>
+        <div className="form-group">
+          <label htmlFor="amount">Amount</label>
+          <input
+            type="number"
+            id="amount"
+            name="amount"
+            value={formData.amount}
+            onChange={handleChange}
+            required
+          />
+      </div>
+      <div className="form-group">
+        <label htmlFor="image">Subscriper Photo</label>
+        <input
+          type="file"
+          id="image"
+          name="image"
+          onChange={handleFileChange}
+        />
+      </div>
           <button type="submit">Add Subscriber</button>
         </form>
       </div>

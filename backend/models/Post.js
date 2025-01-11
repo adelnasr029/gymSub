@@ -13,12 +13,22 @@ const PostSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  subscription: {
-    startDate: { type: Date, required: true },
-    endDate: { type: Date, required: true },
-    amount: { type: Number, required: true },
-    status: { type: String, enum: ['pending', 'active', 'expired', 'cancelled'], default: 'pending' },
+
+  startDate: { 
+    type: Date, 
+    required: true 
   },
+  endDate: { 
+      type: Date, 
+      required: true 
+    },
+  amount: { 
+      type: Number,
+       required: true 
+    },
+  status: { type: String,
+     enum: ['pending', 'active', 'expired', 'cancelled'], default: 'pending' 
+    },
   image: {
     type: String,
   },

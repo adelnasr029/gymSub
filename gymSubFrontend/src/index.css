@@ -204,3 +204,69 @@ tr:hover {
 .edit-button:hover {
   background-color: #e0a800;
 }
+
+
+/* Logout.css */
+.logout-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  z-index: 1000;
+  width: 300px;
+}
+
+.logout-popup h2 {
+  margin-bottom: 20px;
+  font-size: 18px;
+  color: #333;
+}
+
+.button-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.logout-popup button {
+  flex: 1;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+.logout-popup button.logout {
+  background-color: #ff4d4d;
+  color: white;
+}
+
+.logout-popup button.logout:hover {
+  background-color: #ff1a1a;
+}
+
+.logout-popup button.cancel {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.logout-popup button.cancel:hover {
+  background-color: #ddd;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
