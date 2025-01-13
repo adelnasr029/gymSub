@@ -3,15 +3,14 @@ const validator = require("validator");
 const User = require("../models/User");
 
 exports.getLogin = (req, res) => {
-  if (req.user) {
-    return res.redirect("/dashboard");
-  }
-  res.render("login", {
-    title: "Login",
-  });
+  if (req.user) { 
+    res.redirect("http://localhost:5174/dashboard")
+}
+  res.redirect("http://localhost:5173/login");
 };
 
 exports.postLogin = (req, res, next) => {
+  console.log(req.user)
   const validationErrors = [];
   if (!validator.isEmail(req.body.email))
     validationErrors.push({ msg: "Please enter a valid email address." });
@@ -20,7 +19,7 @@ exports.postLogin = (req, res, next) => {
 
   if (validationErrors.length) {
     req.flash("errors", validationErrors);
-    return res.redirect("/login");
+    return res.redirect("http://localhost:5173/login");
   }
   req.body.email = validator.normalizeEmail(req.body.email, {
     gmail_remove_dots: false,
@@ -32,16 +31,18 @@ exports.postLogin = (req, res, next) => {
     }
     if (!user) {
       req.flash("errors", info);
-      return res.redirect("/login");
+      return res.redirect("http://localhost:5173/login");
     }
     req.logIn(user, (err) => {
       if (err) {
         return next(err);
       }
       req.flash("success", { msg: "Success! You are logged in." });
-      res.redirect(req.session.returnTo || "/dashboard");
+      res.redirect( 'http://localhost:5174/dashboard');
+
     });
   })(req, res, next);
+  console.log(req.user)
 };
 
 exports.logout = (req, res) => {
@@ -52,7 +53,7 @@ exports.logout = (req, res) => {
     if (err)
       console.log("Error : Failed to destroy the session during logout.", err);
     req.user = null;
-    res.redirect("/");
+    res.send('logged out successfully');
   });
 };
 
@@ -60,9 +61,8 @@ exports.getSignup = (req, res) => {
   if (req.user) {
     return res.redirect("/dashboard");
   }
-  res.render("signup", {
-    title: "Create Account",
-  });
+  //    title: "Create Account",
+  res.redirect(req.session.returnTo || "http://localhost:5173/signup");
 };
 
 exports.postSignup = (req, res, next) => {
@@ -78,7 +78,7 @@ exports.postSignup = (req, res, next) => {
 
   if (validationErrors.length) {
     req.flash("errors", validationErrors);
-    return res.redirect("../signup");
+    return res.redirect("/dashboard");
   }
   req.body.email = validator.normalizeEmail(req.body.email, {
     gmail_remove_dots: false,
@@ -100,7 +100,7 @@ exports.postSignup = (req, res, next) => {
         req.flash("errors", {
           msg: "Account with that email address or username already exists.",
         });
-        return res.redirect("../signup");
+        return res.redirect("http://localhost:5173/signup");
       }
       user.save((err) => {
         if (err) {

@@ -1,11 +1,12 @@
 const cloudinary = require("../middleware/cloudinary");
 const Post = require("../models/Post");
+const User = require("../models/User")
 
 module.exports = {
-  getProfile: async (req, res) => {
+  getUser: async (req, res) => {
     try {
-      const posts = await Post.find({ user: req.user.id });
-      res.render("profile.ejs", { posts: posts, user: req.user });
+      console.log(req.user)
+      res.status(200).json({ username: req.user?.username});
     } catch (err) {
       console.log(err);
     }

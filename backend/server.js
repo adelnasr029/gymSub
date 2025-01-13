@@ -21,8 +21,6 @@ require("./config/passport")(passport);
 //Connect To Database
 connectDB();
 
-//Using EJS for views
-app.set("view engine", "ejs");
 
 // Enable CORS for all routes
 app.use(cors({
@@ -65,7 +63,16 @@ app.use(flash());
 app.use("/", mainRoutes);
 app.use("/post", postRoutes);
 
+app.get("/test-session", (req, res) => {
+  if (!req.session.views) {
+    req.session.views = 0;
+  }
+  req.session.views++;
+  res.send(`Session views: ${req.session.views}`);
+});
+
 //Server Running
 app.listen(process.env.PORT, () => {
-  console.log(`Server running in ${process.env.NODE_ENV}`);
+  console.log(`Server running in ${process.env.NODE_ENV} on port: ${process.env.PORT}`);
 });
+ 

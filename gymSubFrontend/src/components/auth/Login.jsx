@@ -22,7 +22,6 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-
     // Basic validation
     if (!formData.email || !formData.password) {
       setError("Please fill in all fields");
@@ -32,23 +31,23 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:2121/login", {
+      const response = await fetch("http://localhost:5174/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
+        credentials:"include",
         body: JSON.stringify(formData),
       });
-
       const data = await response.json();
 
       if (!response.ok) {
         throw new Error(data.message || "Login failed");
       }
       // Simulate successful login
-      login(data.token); // Pass the token to the login function
+      login()
       navigate("/dashboard"); // Redirect to dashboard
-
+      
       console.log("Login successful:", data);
       alert("Login successful!");
     } catch (err) {
@@ -68,10 +67,10 @@ const Login = () => {
       <form onSubmit={handleSubmit}>
           <div className="form-group">
              <label htmlFor="email">
-               Email
+               email
              </label>
              <input
-               type="email"
+               type="text"
                id="email"
                name="email"
                value={formData.email}
@@ -80,12 +79,12 @@ const Login = () => {
               />
           </div>
           <div className="form-group">
-            <label htmlFor="password">
+            <label htmlFor="current-password">
               Password
             </label>
             <input
               type="password"
-              id="password"
+              id="current-password"
               name="password"
               value={formData.password}
               onChange={handleChange}

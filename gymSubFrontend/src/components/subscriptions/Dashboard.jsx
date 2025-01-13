@@ -113,7 +113,15 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchSubscribers = async () => {
       try {
-        const response = await fetch(`http://localhost:2121/dashboard`);
+        const response = await fetch(`http://localhost:5174/dashboard`
+          , {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            credentials:"include",
+          }
+        );
         const data = await response.json();
         console.log(data)
       } catch (error) {

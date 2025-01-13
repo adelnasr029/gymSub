@@ -9,8 +9,22 @@ const Logout = () => {
   const navigate = useNavigate();
   console.log("Logout component rendered"); // Log when the component renders
 
-  const handleLogout = () => {
-    console.log("Logout button clicked")
+  const handleLogout = async () => {
+
+    try {
+      const response = await fetch("http://localhost:5174/logout", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials:"include",
+      });
+      if (response.ok) {
+        window.location.href = '/login'
+      }
+    } catch(error){
+      console.error('Error during logout:', error);
+    }
     localStorage.removeItem("isAuthenticated");
     console.log("isAuthenticated removed from localStorage"); // Log after removing from localStorage
 
