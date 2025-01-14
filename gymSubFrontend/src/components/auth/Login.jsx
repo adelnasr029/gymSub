@@ -39,8 +39,6 @@ const Login = () => {
         credentials:"include",
         body: JSON.stringify(formData),
       });
-      const data = await response.json();
-
       if (!response.ok) {
         throw new Error(data.message || "Login failed");
       }
@@ -48,7 +46,7 @@ const Login = () => {
       login()
       navigate("/dashboard"); // Redirect to dashboard
       
-      console.log("Login successful:", data);
+      console.log("Login successful:");
       alert("Login successful!");
     } catch (err) {
       setError(err.message || "An error occurred during login");

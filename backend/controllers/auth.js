@@ -4,7 +4,7 @@ const User = require("../models/User");
 
 exports.getLogin = (req, res) => {
   if (req.user) { 
-    res.redirect("http://localhost:5174/dashboard")
+    res.redirect("http://localhost:5173/dashboard")
 }
   res.redirect("http://localhost:5173/login");
 };

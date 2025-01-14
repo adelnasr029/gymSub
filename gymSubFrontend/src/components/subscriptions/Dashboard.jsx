@@ -1,14 +1,14 @@
-import React, { useState, useEffect, memo } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
 
 const Dashboard = () => {
 
   const navigate = useNavigate();
 
   const [subscribers, setSubscribers] = useState([]);
+  const [query, setQuery] = useState(""); // State for search query
 
-  
-    const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState({
       firstName: "",
       lastName: "",
       phone: "",
@@ -22,6 +22,25 @@ const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
+
+  // Handle search input change
+  const handleSearch = (e) => {
+      setQuery(e.target.value);
+  };
+    // Filter subscribers based on the search query (ID or name)
+    const filteredSubscribers =
+    query.trim() === ""
+      ? subscribers // Show all subscribers if the query is empty
+      : subscribers.filter((subscriber) => {
+          const fullName = `${subscriber.firstName} ${subscriber.lastName}`.toLowerCase();
+          return (
+            subscriber._id.includes(query) || // Match by ID
+            subscriber.firstName.toLowerCase().includes(query.toLowerCase()) || // Match by first name
+            subscriber.lastName.toLowerCase().includes(query.toLowerCase()) || // Match by last name
+            fullName.includes(query.toLowerCase()) // Match by full name
+          );
+        });
+    
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -49,7 +68,6 @@ const Dashboard = () => {
     }
   
     try {
-      // Create a FormData object for file upload
       const formDataToSend = new FormData();
       formDataToSend.append("firstName", formData.firstName);
       formDataToSend.append("lastName", formData.lastName);
@@ -57,27 +75,20 @@ const Dashboard = () => {
       formDataToSend.append("startDate", formData.startDate);
       formDataToSend.append("endDate", formData.endDate);
       formDataToSend.append("amount", formData.amount);
-      // if (formData.image) {
-      //   formDataToSend.append("image", formData.image); // Append the image file
-      // }
       console.log(formDataToSend)
-      // Make a POST request to the backend server
-      const response = await fetch("http://localhost:2121/post/createPost", {
+      if (formData.image) {
+        formDataToSend.append("image", formData.image); 
+      }
+
+      const response = await fetch("http://localhost:5174/post/createPost", {
         method: "POST",
         body: formDataToSend, // Use formDataToSend instead of JSON.stringify(formData)
-        // Do not set Content-Type header manually for FormData
       });
-  
-      // Check if the response is successful
+      
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
-  
-      // Parse the response JSON
-      const result = await response.json();
-      console.log("Success:", result);
-  
-      // Reset the form after successful submission
+    
       setFormData({
         firstName: "",
         lastName: "",
@@ -86,7 +97,8 @@ const Dashboard = () => {
         endDate: "",
         amount: "",
         image: null,
-      });
+      }); 
+
     } catch (error) {
       console.error("Error:", error);
       setError("Failed to submit the form. Please try again."); // Set error message
@@ -95,20 +107,7 @@ const Dashboard = () => {
     }
   };
 
-  const handleEdit = (id) => {
-    const subscriberToEdit = subscribers.find((subscriber) => subscriber.id === id);
-    if (subscriberToEdit) {
-      setFormData({
-        firstName: subscriberToEdit.firstName,
-        lastName: subscriberToEdit.lastName,
-        startDate: subscriberToEdit.startDate,
-        endDate: subscriberToEdit.endDate,
-      });
 
-      // Remove the subscriber being edited from the list
-      setSubscribers(subscribers.filter((subscriber) => subscriber.id !== id));
-    }
-  };
 
   useEffect(() => {
     const fetchSubscribers = async () => {
@@ -123,15 +122,34 @@ const Dashboard = () => {
           }
         );
         const data = await response.json();
-        console.log(data)
+        setSubscribers(data)
+
       } catch (error) {
         console.error("Error fetching subscribers:", error);
       }
     };
   
     fetchSubscribers();
-  }, []); 
+  }, [formData]); 
 
+  const handleEdit = (id) => {
+    const subscriberToEdit = subscribers.find((subscriber) => subscriber.id === id);
+    if (subscriberToEdit) {
+      setFormData({
+        firstName: subscriberToEdit.firstName,
+        lastName: subscriberToEdit.lastName,
+        phone: subscriberToEdit.phone || "", 
+        startDate: subscriberToEdit.startDate.split('T')[0],
+        endDate: subscriberToEdit.endDate.split('T')[0],
+        amount: subscriberToEdit.amount || "", 
+        image: subscriberToEdit.image, 
+      });
+      console.log(subscriberToEdit)
+
+      // Remove the subscriber being edited from the list
+      setSubscribers(subscribers.filter((subscriber) => subscriber.id !== id));
+    }
+  };
   return (
     <div className="dashboard">
       <h1>Subscriber Dashboard</h1>
@@ -220,6 +238,17 @@ const Dashboard = () => {
         </form>
       </div>
 
+      {/* Search Subscribers */}
+      <div className="search-container">
+        <h2>Search Subscribers</h2>
+        <input
+          type="text"
+          placeholder="Search by ID or name..."
+          value={query}
+          onChange={handleSearch}
+        />
+      </div>
+
       {/* Subscribers Table */}
       <div className="table-container">
         <h2>Subscribers List</h2>
@@ -232,18 +261,21 @@ const Dashboard = () => {
               <th>Days Remaining</th>
               <th>Status</th>
               <th>Actions</th>
-              <th>Delete</th>
             </tr>
           </thead>
           <tbody>
-            {subscribers.map((subscriber) => (
-              <tr key={subscriber.id}>
-                <td>{subscriber.firstName} {subscriber.lastName}</td>
-                <td>{subscriber.startDate}</td>
-                <td>{subscriber.endDate}</td>
+            {filteredSubscribers.map((subscriber) => (
+              <tr key={subscriber._id}>
+                <td>
+                  <Link to={`/subscriber/${subscriber._id}`}>
+                    {subscriber.firstName} {subscriber.lastName}
+                  </Link>
+                </td>
+                <td>{ new Date(subscriber.startDate).toLocaleDateString()}</td>
+                <td>{new Date(subscriber.endDate).toLocaleDateString()}</td>
                 <td>{subscriber.daysRemaining}</td>
                 <td>
-                  <span className={`status ${subscriber.status.toLowerCase()}`}>
+                  <span className={`status ${subscriber.status}`}>
                     {subscriber.status}
                   </span>
                 </td>
@@ -251,16 +283,8 @@ const Dashboard = () => {
                   <button
                     onClick={() => handleEdit(subscriber.id)}
                     className="edit-button"
-                  >
+                    >
                     Edit
-                  </button>
-                </td>
-                <td>
-                  <button
-                    onClick={() => handleEdit(subscriber.id)}
-                    className="edit-button"
-                  >
-                    Remove
                   </button>
                 </td>
               </tr>

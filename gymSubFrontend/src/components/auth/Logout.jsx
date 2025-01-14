@@ -7,8 +7,6 @@ const Logout = () => {
   
   // const { setIsAuthenticated } = useContext(AuthContext);
   const navigate = useNavigate();
-  console.log("Logout component rendered"); // Log when the component renders
-
   const handleLogout = async () => {
 
     try {
@@ -26,16 +24,8 @@ const Logout = () => {
       console.error('Error during logout:', error);
     }
     localStorage.removeItem("isAuthenticated");
-    console.log("isAuthenticated removed from localStorage"); // Log after removing from localStorage
-
-    // Update authentication state in context
     setIsAuthenticated(false);
-    console.log("isAuthenticated set to false in context"); // Log after updating context
-
-    // Redirect to the login page
     navigate("/login");
-    console.log("Redirecting to /login"); // Log before navigating to the login page
-
   };
 
   const handleCancel = () => {

@@ -22,6 +22,10 @@ const PostSchema = new mongoose.Schema({
       type: Date, 
       required: true 
     },
+    totalDays: {
+      type: Number, 
+      default: 0,
+    },
   amount: { 
       type: Number,
        required: true 
@@ -34,6 +38,7 @@ const PostSchema = new mongoose.Schema({
   },
   cloudinaryId: {
     type: String,
+    require: true,
   },
   user: {
     type: mongoose.Schema.Types.ObjectId,
@@ -44,29 +49,36 @@ const PostSchema = new mongoose.Schema({
     default: Date.now,
   },
 });
-// Middleware to update status before saving
-PostSchema.pre('save', function(next) {
-  const now = new Date();
-  if (now < this.subscription.startDate) {
-    this.subscription.status = 'pending';
-  } else if (now >= this.subscription.startDate && now <= this.subscription.endDate) {
-    this.subscription.status = 'active';
-  } else {
-    this.subscription.status = 'expired';
-  }
-  next();
-});
 
-// Virtual property for dynamic status calculation
-PostSchema.virtual('subscription.calculatedStatus').get(function() {
+
+PostSchema.pre("save", function (next) {
   const now = new Date();
-  if (now < this.subscription.startDate) {
-    return 'pending';
-  } else if (now >= this.subscription.startDate && now <= this.subscription.endDate) {
-    return 'active';
-  } else {
-    return 'expired';
+
+  // Calculate the number of days for the current subscription period
+  if (this.startDate && this.endDate) {
+    const timeDiff = this.endDate - this.startDate; // Difference in milliseconds
+    const currentDays = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)); // Convert to days
+
+    // Accumulate totalDays
+    if (this.isNew) {
+      // For new subscriptions, set totalDays to currentDays
+      this.totalDays = currentDays;
+    } else {
+      // For renewals, add currentDays to totalDays
+      this.totalDays += currentDays;
+    }
   }
+
+  // Update the status
+  if (now < this.startDate) {
+    this.status = "pending";
+  } else if (now >= this.startDate && now <= this.endDate) {
+    this.status = "active";
+  } else {
+    this.status = "expired";
+  }
+
+  next();
 });
 
 module.exports = mongoose.model("Post", PostSchema);

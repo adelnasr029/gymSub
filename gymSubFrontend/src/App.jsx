@@ -7,6 +7,8 @@ import Login from "./components/auth/Login"
 import Logout from "./components/auth/Logout";
 import Dashboard from "./components/subscriptions/Dashboard"
 import ProtectedRoute from "./components/auth/ProtectedRoute"
+import SubscriberDetails from "./components/subscriptions/SubscriberDetails";
+
 
 
 export default function App() {
@@ -20,6 +22,13 @@ export default function App() {
                 element={
                   <ProtectedRoute>
                     <Dashboard />
+                  </ProtectedRoute>
+                }/>
+             <Route
+                path="/subscriber/:id"
+                element={
+                  <ProtectedRoute>
+                    <SubscriberDetails />
                   </ProtectedRoute>
                 }/>
               <Route

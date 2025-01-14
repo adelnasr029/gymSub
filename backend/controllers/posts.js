@@ -1,6 +1,7 @@
 const cloudinary = require("../middleware/cloudinary");
 const Post = require("../models/Post");
 const User = require("../models/User")
+const mongoose = require('mongoose')
 
 module.exports = {
   getUser: async (req, res) => {
@@ -8,6 +9,29 @@ module.exports = {
       console.log(req.user)
       res.status(200).json({ username: req.user?.username});
     } catch (err) {
+      console.log(err);
+    }
+  },
+  getSubscriber: async (req, res) => {
+    try {
+      const subscriberId = req.params.id;
+  
+      // Validate the ID
+      if (!mongoose.Types.ObjectId.isValid(subscriberId)) {
+        return res.status(400).json({ error: "Invalid subscriber ID" });
+      }
+  
+      // Find the subscriber in the database
+      const subscriber = await Post.findById(subscriberId).lean();
+  
+      // If subscriber not found, return a 404 error
+      if (!subscriber) {
+        return res.status(404).json({ error: "Subscriber not found" });
+      }
+  
+      // Send the subscriber data as a JSON response
+      res.status(200).json(subscriber);
+    }catch (err) {
       console.log(err);
     }
   },
@@ -32,7 +56,7 @@ module.exports = {
   createPost: async (req, res) => {
     try {
       // Upload image to cloudinary
-      // const result = await cloudinary.uploader.upload(req.file.path);
+      const result = await cloudinary.uploader.upload(req.file.path);
 
       await Post.create({
         firstName: req.body.firstName,
@@ -41,14 +65,16 @@ module.exports = {
         startDate: new Date(req.body.startDate),
         endDate: new Date(req.body.endDate),
         amount: req.body.amount,
-        // image: result.secure_url,
-        // cloudinaryId: result.public_id,
-        // user: req.user.id,
+        image: result.secure_url,
+        cloudinaryId: result.public_id,
+        user: req.user,
       });
       // console.log(result)
       console.log("Post has been added!");
-      res.redirect("/dashboard");
-    } catch (err) {
+      console.log(req.body); // Non-file fields
+      console.log(req.file); // Uploaded file
+      res.send("File uploaded successfully");
+        } catch (err) {
       console.log(err);
     }
   },
@@ -66,18 +92,17 @@ module.exports = {
       console.log(err);
     }
   },
-  deletePost: async (req, res) => {
+  deleteSubscriber: async (req, res) => {
     try {
       // Find post by id
       let post = await Post.findById({ _id: req.params.id });
       // Delete image from cloudinary
       await cloudinary.uploader.destroy(post.cloudinaryId);
       // Delete post from db
-      await Post.remove({ _id: req.params.id });
+      // await Post.remove({ _id: req.params.id });
       console.log("Deleted Post");
-      res.redirect("/profile");
     } catch (err) {
-      res.redirect("/profile");
+      console.log(err);
     }
   },
 };
