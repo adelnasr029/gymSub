@@ -9,7 +9,7 @@ const { ensureAuth, ensureGuest } = require("../middleware/auth");
 
 router.post("/createPost", upload.single("image"), postsController.createPost);
 router.get("/subscriber/:id", postsController.getSubscriber);
-router.put("/subscriber/:id", postsController.likePost);
+router.put("/updateSubscriber/:id", upload.single("image") ,postsController.updateSubscriper);
 
 router.delete("/deletePost/:id", postsController.deleteSubscriber);
 

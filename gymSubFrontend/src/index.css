@@ -352,3 +352,26 @@ tr:hover {
   object-fit: cover; /* Ensures the image covers the area without distortion */
   border: 3px solid #007bff; /* Border around the image */
 }
+
+.tooltip-container {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: white;
+  border: 1px solid #ccc;
+  padding: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+}
+
+.tooltip img {
+  max-width: 100px;
+  max-height: 100px;
+  display: block;
+}

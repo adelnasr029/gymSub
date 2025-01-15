@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import ImageTooltip from "./ImageTooltip";
 
 const Dashboard = () => {
 
@@ -18,26 +19,66 @@ const Dashboard = () => {
       image: null,
     })
   
-  // State to manage loading and error states
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isEditMode, setIsEditMode] = useState(false); // Track edit mode
+  const [currentSubscriberId, setCurrentSubscriberId] = useState(null); // Track the ID of the subscriber being edited
 
+  useEffect(() => {
+    const fetchSubscribers = async () => {
+      try {
+        const response = await fetch(`http://localhost:5174/dashboard`
+          , {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            credentials:"include",
+          }
+        );
+        const data = await response.json();
+        setSubscribers(data)
+      } catch (error) {
+        console.error("Error fetching subscribers:", error);
+      }
+    };
+  fetchSubscribers();
+
+  }, []); 
 
   // Handle search input change
   const handleSearch = (e) => {
       setQuery(e.target.value);
   };
     // Filter subscribers based on the search query (ID or name)
+    const handleEdit = (id) => {
+      const subscriberToEdit = subscribers.find((subscriber) => subscriber._id === id);
+      if (subscriberToEdit) {
+        setFormData({
+          firstName: subscriberToEdit.firstName,
+          lastName: subscriberToEdit.lastName,
+          phone: subscriberToEdit.phone || "", 
+          startDate: subscriberToEdit.startDate.split('T')[0],
+          endDate: subscriberToEdit.endDate.split('T')[0],
+          amount: subscriberToEdit.amount || "", 
+          image: subscriberToEdit.image, 
+        });
+      }
+      
+      setIsEditMode(true); 
+      setCurrentSubscriberId(id);
+    };
+
     const filteredSubscribers =
-    query.trim() === ""
-      ? subscribers // Show all subscribers if the query is empty
+      query.trim() === ""
+      ? subscribers 
       : subscribers.filter((subscriber) => {
           const fullName = `${subscriber.firstName} ${subscriber.lastName}`.toLowerCase();
           return (
-            subscriber._id.includes(query) || // Match by ID
-            subscriber.firstName.toLowerCase().includes(query.toLowerCase()) || // Match by first name
-            subscriber.lastName.toLowerCase().includes(query.toLowerCase()) || // Match by last name
-            fullName.includes(query.toLowerCase()) // Match by full name
+            subscriber._id.includes(query) ||
+            subscriber.firstName.toLowerCase().includes(query.toLowerCase()) || 
+            subscriber.lastName.toLowerCase().includes(query.toLowerCase()) || 
+            fullName.includes(query.toLowerCase()) 
           );
         });
     
@@ -51,19 +92,89 @@ const Dashboard = () => {
   const handleFileChange = (e) => {
     setFormData({
       ...formData,
-      image: e.target.files[0], // Store the selected file
+      image: e.target.files[0], 
     });
   };
 
+  const handleUpdate = async () => {
+    
+    if (!currentSubscriberId) return; console.log('testing')
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("firstName", formData.firstName);
+      formDataToSend.append("lastName", formData.lastName);
+      formDataToSend.append("phone", formData.phone);
+      formDataToSend.append("startDate", formData.startDate);
+      formDataToSend.append("endDate", formData.endDate);
+      formDataToSend.append("amount", formData.amount);
+      if (formData.image) {
+        formDataToSend.append("image", formData.image);
+      }
+
+      const response = await fetch(`http://localhost:5174/post/updateSubscriber/${currentSubscriberId}`, {
+        method: "PUT",
+        body: formDataToSend,
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const updatedSubscriber = await response.json();
+      setSubscribers(subscribers.map(sub => sub._id === currentSubscriberId ? updatedSubscriber : sub));
+
+      // Reset form and edit mode
+      setFormData({
+        firstName: "",
+        lastName: "",
+        phone: "",
+        startDate: "",
+        endDate: "",
+        amount: "",
+        image: null,
+      });
+      setIsEditMode(false);
+      setCurrentSubscriberId(null);
+
+    } catch (error) {
+      console.error("Error:", error);
+      setError("Failed to update the subscriber. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditMode(false); 
+    setCurrentSubscriberId(null); 
+    setFormData({
+      firstName: "",
+      lastName: "",
+      phone: "",
+      startDate: "",
+      endDate: "",
+      amount: "",
+      image: null,
+    }); 
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true); // Set loading state to true
-    setError(null); // Clear any previous errors
+
+    if (isEditMode) {
+      await handleUpdate(); // Call handleUpdate if in edit mode
+      return; // Exit the function to prevent further execution
+    }
+    setIsLoading(true); 
+    setError(null); 
   
     // Basic validation
     if (!formData.firstName || !formData.lastName || !formData.startDate || !formData.endDate) {
       alert("Please fill in all fields");
-      setIsLoading(false); // Reset loading state
+      setIsLoading(false); 
       return;
     }
   
@@ -84,7 +195,7 @@ const Dashboard = () => {
         method: "POST",
         body: formDataToSend, // Use formDataToSend instead of JSON.stringify(formData)
       });
-      
+      console.log('Add Sub triggered')
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
@@ -109,47 +220,8 @@ const Dashboard = () => {
 
 
 
-  useEffect(() => {
-    const fetchSubscribers = async () => {
-      try {
-        const response = await fetch(`http://localhost:5174/dashboard`
-          , {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            credentials:"include",
-          }
-        );
-        const data = await response.json();
-        setSubscribers(data)
 
-      } catch (error) {
-        console.error("Error fetching subscribers:", error);
-      }
-    };
-  
-    fetchSubscribers();
-  }, [formData]); 
 
-  const handleEdit = (id) => {
-    const subscriberToEdit = subscribers.find((subscriber) => subscriber.id === id);
-    if (subscriberToEdit) {
-      setFormData({
-        firstName: subscriberToEdit.firstName,
-        lastName: subscriberToEdit.lastName,
-        phone: subscriberToEdit.phone || "", 
-        startDate: subscriberToEdit.startDate.split('T')[0],
-        endDate: subscriberToEdit.endDate.split('T')[0],
-        amount: subscriberToEdit.amount || "", 
-        image: subscriberToEdit.image, 
-      });
-      console.log(subscriberToEdit)
-
-      // Remove the subscriber being edited from the list
-      setSubscribers(subscribers.filter((subscriber) => subscriber.id !== id));
-    }
-  };
   return (
     <div className="dashboard">
       <h1>Subscriber Dashboard</h1>
@@ -234,7 +306,17 @@ const Dashboard = () => {
           onChange={handleFileChange}
         />
       </div>
-          <button type="submit">Add Subscriber</button>
+        <button type="submit"
+          onClick={handleSubmit}
+         >
+          {isEditMode ? "Update Subscriber" : "Add Subscriber"}
+        </button>
+
+          {isEditMode && (
+        <button type="button" onClick={handleCancelEdit}>
+            Cancel Edit
+        </button>
+          )}
         </form>
       </div>
 
@@ -267,9 +349,11 @@ const Dashboard = () => {
             {filteredSubscribers.map((subscriber) => (
               <tr key={subscriber._id}>
                 <td>
-                  <Link to={`/subscriber/${subscriber._id}`}>
-                    {subscriber.firstName} {subscriber.lastName}
-                  </Link>
+                  <ImageTooltip imageUrl={subscriber.image}>
+                    <Link to={`/subscriber/${subscriber._id}`}>
+                     {subscriber.firstName} {subscriber.lastName}
+                    </Link>
+                  </ImageTooltip>
                 </td>
                 <td>{ new Date(subscriber.startDate).toLocaleDateString()}</td>
                 <td>{new Date(subscriber.endDate).toLocaleDateString()}</td>
@@ -281,7 +365,7 @@ const Dashboard = () => {
                 </td>
                 <td>
                   <button
-                    onClick={() => handleEdit(subscriber.id)}
+                    onClick={() => handleEdit(subscriber._id)}
                     className="edit-button"
                     >
                     Edit
