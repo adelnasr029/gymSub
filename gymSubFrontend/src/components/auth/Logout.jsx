@@ -29,7 +29,6 @@ const Logout = () => {
   };
 
   const handleCancel = () => {
-    // Go back to the previous page
     navigate(-1);
   };
 

@@ -1,9 +1,9 @@
 import React, { createContext, useState, useEffect } from "react";
-
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+
 
   // Check localStorage for authentication status on initial load
   useEffect(() => {
@@ -25,8 +25,15 @@ export const AuthProvider = ({ children }) => {
     setIsAuthenticated(false);
   };
 
+    // Value to be provided to consuming components
+    const value = {
+      isAuthenticated,
+      login,
+      logout,
+    };
+
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

@@ -4,13 +4,12 @@ const User = require("../models/User");
 
 exports.getLogin = (req, res) => {
   if (req.user) { 
-    res.redirect("http://localhost:5173/dashboard")
+    res.redirect("http://localhost:5173/home")
 }
   res.redirect("http://localhost:5173/login");
 };
 
 exports.postLogin = (req, res, next) => {
-  console.log(req.user)
   const validationErrors = [];
   if (!validator.isEmail(req.body.email))
     validationErrors.push({ msg: "Please enter a valid email address." });
@@ -38,11 +37,10 @@ exports.postLogin = (req, res, next) => {
         return next(err);
       }
       req.flash("success", { msg: "Success! You are logged in." });
-      res.redirect( 'http://localhost:5174/dashboard');
+      res.redirect( 'http://localhost:5174/home');
 
     });
   })(req, res, next);
-  console.log(req.user)
 };
 
 exports.logout = (req, res) => {
@@ -59,7 +57,7 @@ exports.logout = (req, res) => {
 
 exports.getSignup = (req, res) => {
   if (req.user) {
-    return res.redirect("/dashboard");
+    return res.redirect("/home");
   }
   //    title: "Create Account",
   res.redirect(req.session.returnTo || "http://localhost:5173/signup");
@@ -78,7 +76,7 @@ exports.postSignup = (req, res, next) => {
 
   if (validationErrors.length) {
     req.flash("errors", validationErrors);
-    return res.redirect("/dashboard");
+    return res.redirect("/home");
   }
   req.body.email = validator.normalizeEmail(req.body.email, {
     gmail_remove_dots: false,
@@ -110,7 +108,7 @@ exports.postSignup = (req, res, next) => {
           if (err) {
             return next(err);
           }
-          res.redirect("/dashboard");
+          res.redirect("/home");
         });
       });
     }

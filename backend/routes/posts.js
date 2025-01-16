@@ -1,16 +1,15 @@
 const express = require("express");
 const router = express.Router();
 const upload = require("../middleware/multer");
-const postsController = require("../controllers/posts");
+const subsController = require("../controllers/posts");
 const { ensureAuth, ensureGuest } = require("../middleware/auth");
 
 //Post Routes - simplified for now
 // router.get("/:id", ensureAuth, postsController.getPost);
 
-router.post("/createPost", upload.single("image"), postsController.createPost);
-router.get("/subscriber/:id", postsController.getSubscriber);
-router.put("/updateSubscriber/:id", upload.single("image") ,postsController.updateSubscriper);
-
-router.delete("/deletePost/:id", postsController.deleteSubscriber);
+router.post("/createSub", upload.single("image"), subsController.createSub);
+router.get("/subscriber/:id", subsController.getSubscriber);
+router.put("/updateSubscriber/:id", upload.single("image") ,subsController.updateSubscriper);
+router.delete("/deleteSubscriper/:id", subsController.deleteSubscriber);
 
 module.exports = router;

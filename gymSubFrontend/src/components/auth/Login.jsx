@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "./AuthContext";
 const Login = () => {
@@ -18,42 +18,49 @@ const Login = () => {
       [name]: value,
     });
   };
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     setError("");
-    // Basic validation
-    if (!formData.email || !formData.password) {
+      if (!formData.email || !formData.password) {
       setError("Please fill in all fields");
       return;
     }
-
     setLoading(true);
-
-    try {
-      const response = await fetch("http://localhost:5174/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials:"include",
-        body: JSON.stringify(formData),
+  
+    // Send login request to the server
+    fetch("http://localhost:5174/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify(formData),
+    })
+    .then((response) => {
+        if (!response.ok) {
+          // If the response is not OK, parse the error message
+          return response.json().then((data) => {
+            throw new Error(data.message || "Login failed");
+          });
+        }
+        return response.json(); // Parse the response data
+      })
+      .then((data) => {
+        // Simulate successful login
+        login();
+        navigate("/home"); // Redirect to dashboard
+        alert("Login successful!");
+      })
+      .catch((err) => {
+        // Handle errors
+        setError(err.message || "An error occurred during login");
+      })
+      .finally(() => {
+        // Reset loading state
+        setLoading(false);
       });
-      if (!response.ok) {
-        throw new Error(data.message || "Login failed");
-      }
-      // Simulate successful login
-      login()
-      navigate("/dashboard"); // Redirect to dashboard
-      
-      console.log("Login successful:");
-      alert("Login successful!");
-    } catch (err) {
-      setError(err.message || "An error occurred during login");
-    } finally {
-      setLoading(false);
-    }
   };
+
 
   return (
     <>

@@ -30,9 +30,6 @@ const PostSchema = new mongoose.Schema({
       type: Number,
        required: true 
     },
-  status: { type: String,
-     enum: ['pending', 'active', 'expired', 'cancelled'], default: 'pending' 
-    },
   image: {
     type: String,
   },
@@ -69,16 +66,6 @@ PostSchema.pre("save", function (next) {
     }
   }
 
-  // Update the status
-  if (now < this.startDate) {
-    this.status = "pending";
-  } else if (now >= this.startDate && now <= this.endDate) {
-    this.status = "active";
-  } else {
-    this.status = "expired";
-  }
-
-  next();
 });
 
 module.exports = mongoose.model("Post", PostSchema);

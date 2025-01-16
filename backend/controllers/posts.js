@@ -28,7 +28,6 @@ module.exports = {
       if (!subscriber) {
         return res.status(404).json({ error: "Subscriber not found" });
       }
-  
       // Send the subscriber data as a JSON response
       res.status(200).json(subscriber);
     }catch (err) {
@@ -43,20 +42,17 @@ module.exports = {
       console.log(err);
     }
   },
-  getPost: async (req, res) => {
+  createSub: async (req, res) => {
     try {
-      const post = await Post.findById(req.params.id);
-
-      res.render("post.ejs", { post: post, user: req.user});
-    } catch (err) {
-      console.log(err);
-    }
-  },
+      let imageUrl = null;
+      let cloudinaryId = null;
   
-  createPost: async (req, res) => {
-    try {
-      // Upload image to cloudinary
-      const result = await cloudinary.uploader.upload(req.file.path);
+      // Upload image to Cloudinary only if a file is provided
+      if (req.file) {
+        const result = await cloudinary.uploader.upload(req.file.path);
+        imageUrl = result.secure_url;
+        cloudinaryId = result.public_id;
+      }
 
       await Post.create({
         firstName: req.body.firstName,
@@ -65,8 +61,8 @@ module.exports = {
         startDate: new Date(req.body.startDate),
         endDate: new Date(req.body.endDate),
         amount: req.body.amount,
-        image: result.secure_url,
-        cloudinaryId: result.public_id,
+        image: imageUrl,
+        cloudinaryId: cloudinaryId,
         user: req.user,
       });
       // console.log(result)
@@ -126,10 +122,9 @@ module.exports = {
       const updatedSubscriber = await Post.findByIdAndUpdate(
         subscriberId,
         updateData,
-        { new: true, upsert: false } // `upsert: false` ensures no new document is created
+        { new: true, upsert: false } //ensures no new document is created
       );
   
-      // Return the updated subscriber
       res.status(200).json(updatedSubscriber);
     } catch (error) {
       console.error('Error updating subscriber:', error);
@@ -138,13 +133,15 @@ module.exports = {
   },
   deleteSubscriber: async (req, res) => {
     try {
-      // Find post by id
-      let post = await Post.findById({ _id: req.params.id });
+      const subscriber = await Post.findById({ _id: req.params.id });
       // Delete image from cloudinary
-      await cloudinary.uploader.destroy(post.cloudinaryId);
+      if(subscriber.cloudinaryId){
+         await cloudinary.uploader.destroy(subscriber.cloudinaryId);
+      }
       // Delete post from db
-      // await Post.remove({ _id: req.params.id });
-      console.log("Deleted Post");
+      await Post.remove({ _id: req.params.id });
+      console.log("Deleted Subscriper");
+      res.status(200).json();
     } catch (err) {
       console.log(err);
     }

@@ -5,32 +5,39 @@ import { AuthProvider } from "./components/auth/AuthContext";
 import Signup from "./components/auth/Signup"
 import Login from "./components/auth/Login"
 import Logout from "./components/auth/Logout";
-import Dashboard from "./components/subscriptions/Dashboard"
+import Dashboard from "./components/subscriptions/Home"
 import ProtectedRoute from "./components/auth/ProtectedRoute"
 import SubscriberDetails from "./components/subscriptions/SubscriberDetails";
-
+import Layout from './components/Layout'
+import SubscripersList from "./components/subscriptions/SubscripersList";
 
 
 export default function App() {
   return (
+    <>
       <AuthProvider>
         <Router>
           <Routes>
             <Route path="/login" element={<Login />} />
               <Route
-                path="/dashboard"
+                path="/home"
                 element={
                   <ProtectedRoute>
+                    <Layout>
                     <Dashboard />
+                    </Layout>
                   </ProtectedRoute>
                 }/>
-             <Route
+              <Route
                 path="/subscriber/:id"
                 element={
                   <ProtectedRoute>
-                    <SubscriberDetails />
+                    <Layout>
+                      <SubscriberDetails />
+                    </Layout>
                   </ProtectedRoute>
-                }/>
+                }
+              />
               <Route
                 path="/signup"
                 element={
@@ -38,11 +45,23 @@ export default function App() {
                     <Signup />
                   </ProtectedRoute>
                 }/>
+                <Route
+                path="/subscripers-list"
+                element={
+                <ProtectedRoute>
+                  <Layout>
+                    <SubscripersList />
+                  </Layout>
+                </ProtectedRoute>
+                }
+              />
               <Route
                 path="/logout"
                 element={
                 <ProtectedRoute>
-                  <Logout />
+                  <Layout>
+                    <Logout />
+                  </Layout>
                 </ProtectedRoute>
                 }
               />
@@ -50,6 +69,7 @@ export default function App() {
           </Routes>
         </Router>
       </AuthProvider>
+    </>
   )
 }
 

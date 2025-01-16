@@ -24,27 +24,68 @@ const Dashboard = () => {
   const [isEditMode, setIsEditMode] = useState(false); // Track edit mode
   const [currentSubscriberId, setCurrentSubscriberId] = useState(null); // Track the ID of the subscriber being edited
 
-  useEffect(() => {
-    const fetchSubscribers = async () => {
-      try {
-        const response = await fetch(`http://localhost:5174/dashboard`
-          , {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            credentials:"include",
-          }
-        );
-        const data = await response.json();
-        setSubscribers(data)
-      } catch (error) {
-        console.error("Error fetching subscribers:", error);
-      }
+    // Function to calculate remaining days
+    const calculateRemainingDays = ( endDate) => {
+      const start = Date.now();
+      const end = new Date(endDate);
+      const differenceInMs = end - start;
+      const differenceInDays = Math.floor(differenceInMs / (1000 * 60 * 60 * 24));
+      return differenceInDays >= 0 ? differenceInDays : 0;
     };
-  fetchSubscribers();
 
-  }, []); 
+      // Function to determine subscription status
+  const getSubscriptionStatus = (startDate, remainingDays) => {
+    const currentDate = new Date();
+    const start = new Date(startDate);
+
+    if (currentDate < start) {
+      return "Upcoming"; 
+    } else if (remainingDays > 0) {
+      return "Active"; 
+    } else {
+      return "Expired"; 
+    }
+  };
+  
+  useEffect(() => {
+    const fetchSubscribers = () => {
+      fetch(`http://localhost:5174/home`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          return response.json();
+        })
+        .then((data) => {
+          // Add daysRemaining to each subscriber
+          const subscribersWithDetails = data.map((subscriber) => {
+            const remainingDays = calculateRemainingDays(subscriber.endDate);
+            const status = getSubscriptionStatus(
+              subscriber.startDate,
+              remainingDays
+            );
+            return {
+              ...subscriber,
+              daysRemaining: remainingDays,
+              status,
+            };
+          });
+  
+          setSubscribers(subscribersWithDetails);
+        })
+        .catch((error) => {
+          console.error("Error fetching subscribers:", error);
+        });
+    };
+  
+    fetchSubscribers();
+  }, [formData]);
 
   // Handle search input change
   const handleSearch = (e) => {
@@ -163,7 +204,16 @@ const Dashboard = () => {
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    if (!formData.firstName ||
+    !formData.lastName ||
+    !formData.startDate ||
+    !formData.endDate ||
+    !formData.phone ||
+    !formData.amount ){
+      alert("Please fill in all fields");
+      setIsLoading(false); 
+      return;
+    }
     if (isEditMode) {
       await handleUpdate(); // Call handleUpdate if in edit mode
       return; // Exit the function to prevent further execution
@@ -172,11 +222,7 @@ const Dashboard = () => {
     setError(null); 
   
     // Basic validation
-    if (!formData.firstName || !formData.lastName || !formData.startDate || !formData.endDate) {
-      alert("Please fill in all fields");
-      setIsLoading(false); 
-      return;
-    }
+
   
     try {
       const formDataToSend = new FormData();
@@ -191,7 +237,7 @@ const Dashboard = () => {
         formDataToSend.append("image", formData.image); 
       }
 
-      const response = await fetch("http://localhost:5174/post/createPost", {
+      const response = await fetch("http://localhost:5174/post/createSub", {
         method: "POST",
         body: formDataToSend, // Use formDataToSend instead of JSON.stringify(formData)
       });
@@ -218,18 +264,12 @@ const Dashboard = () => {
     }
   };
 
-
-
-
-
   return (
     <div className="dashboard">
-      <h1>Subscriber Dashboard</h1>
-      <button  onClick={() => navigate("/logout")}>Logout</button>
-
+      <h1>Create Or Update Subscription Form </h1>
       {/* Add New Subscriber Form */}
-      <div className="form-container">
-        <h2>Add New Subscriber</h2>
+      <div className="form-btn-container">
+        <div className="form-container">
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="firstName">First Name</label>
@@ -237,6 +277,7 @@ const Dashboard = () => {
               type="text"
               id="firstName"
               name="firstName"
+              placeholder="First Name"
               value={formData.firstName}
               onChange={handleChange}
               required
@@ -248,6 +289,7 @@ const Dashboard = () => {
               type="text"
               id="lastName"
               name="lastName"
+              placeholder="Last Name"
               value={formData.lastName}
               onChange={handleChange}
               required
@@ -281,6 +323,7 @@ const Dashboard = () => {
               type="text"
               id="phone"
               name="phone"
+              placeholder="01348587455"
               value={formData.phone}
               onChange={handleChange}
               required
@@ -292,20 +335,24 @@ const Dashboard = () => {
             type="number"
             id="amount"
             name="amount"
+            placeholder="200 EGP"
             value={formData.amount}
             onChange={handleChange}
             required
           />
-      </div>
-      <div className="form-group">
-        <label htmlFor="image">Subscriper Photo</label>
-        <input
-          type="file"
-          id="image"
-          name="image"
-          onChange={handleFileChange}
-        />
-      </div>
+          </div>
+          <div className="form-group">
+            <label htmlFor="image">Subscriper Photo</label>
+            <input
+              type="file"
+              id="image"
+              name="image"
+              onChange={handleFileChange}
+            />
+          </div>
+        </form>
+        </div>
+        <div className="form-btn">
         <button type="submit"
           onClick={handleSubmit}
          >
@@ -317,8 +364,9 @@ const Dashboard = () => {
             Cancel Edit
         </button>
           )}
-        </form>
       </div>
+    </div>
+
 
       {/* Search Subscribers */}
       <div className="search-container">
@@ -338,10 +386,11 @@ const Dashboard = () => {
           <thead>
             <tr>
               <th>Name</th>
+              <th>Duration</th>
               <th>Start Date</th>
-              <th>End Date</th>
-              <th>Days Remaining</th>
               <th>Status</th>
+              <th>End Date</th>
+              <th>Value</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -355,13 +404,26 @@ const Dashboard = () => {
                     </Link>
                   </ImageTooltip>
                 </td>
-                <td>{ new Date(subscriber.startDate).toLocaleDateString()}</td>
-                <td>{new Date(subscriber.endDate).toLocaleDateString()}</td>
                 <td>{subscriber.daysRemaining}</td>
                 <td>
-                  <span className={`status ${subscriber.status}`}>
+                  { new Date(subscriber.startDate).toLocaleDateString("en-US", {
+                    day: "numeric",
+                    month: "short",
+                  })}
+                </td>
+                <td>
+                  <span className={`status ${subscriber.status.toLowerCase()}`}>
                     {subscriber.status}
                   </span>
+                </td>
+                <td>
+                  {new Date(subscriber.endDate).toLocaleDateString("en-US", {
+                    day: "numeric",
+                    month: "short",
+                  })}
+                </td>
+                <td>
+                  {subscriber.amount} EGP
                 </td>
                 <td>
                   <button
