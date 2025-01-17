@@ -266,122 +266,124 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard">
-      <h1>Create Or Update Subscription Form </h1>
       {/* Add New Subscriber Form */}
-      <div className="form-btn-container">
-        <div className="form-container">
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="firstName">First Name</label>
-            <input
-              type="text"
-              id="firstName"
-              name="firstName"
-              placeholder="First Name"
-              value={formData.firstName}
-              onChange={handleChange}
-              required
-            />
+      <div className="form-search-container">
+      <h1>Create Or Update Subscription Form </h1>
+
+        <div className="form-btn-container">
+          <div className="form-container">
+            <form onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label htmlFor="firstName">First Name</label>
+                <input
+                  type="text"
+                  id="firstName"
+                  name="firstName"
+                  placeholder="First Name"
+                  value={formData.firstName}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="lastName">Last Name</label>
+                <input
+                  type="text"
+                  id="lastName"
+                  name="lastName"
+                  placeholder="Last Name"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="startDate">Start Date</label>
+                <input
+                  type="date"
+                  id="startDate"
+                  name="startDate"
+                  value={formData.startDate}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="endDate">End Date</label>
+                <input
+                  type="date"
+                  id="endDate"
+                  name="endDate"
+                  value={formData.endDate}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="phone">Phone Number</label>
+                <input
+                  type="text"
+                  id="phone"
+                  name="phone"
+                  placeholder="01348587455"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+            <div className="form-group">
+              <label htmlFor="amount">Amount</label>
+              <input
+                type="number"
+                id="amount"
+                name="amount"
+                placeholder="200 EGP"
+                value={formData.amount}
+                onChange={handleChange}
+                required
+              />
+              </div>
+              <div className="form-group">
+                <label htmlFor="image">Subscriper Photo</label>
+                <input
+                  type="file"
+                  id="image"
+                  name="image"
+                  onChange={handleFileChange}
+                />
+              </div>
+            </form>
           </div>
-          <div className="form-group">
-            <label htmlFor="lastName">Last Name</label>
-            <input
-              type="text"
-              id="lastName"
-              name="lastName"
-              placeholder="Last Name"
-              value={formData.lastName}
-              onChange={handleChange}
-              required
-            />
+          <div className="form-btn">
+          <button type="submit"
+            onClick={handleSubmit}
+           >
+            {isEditMode ? "Update Subscriber" : "Add Subscriber"}
+          </button>
+    
+            {isEditMode && (
+          <button type="button" onClick={handleCancelEdit}>
+              Cancel Edit
+          </button>
+            )}
           </div>
-          <div className="form-group">
-            <label htmlFor="startDate">Start Date</label>
-            <input
-              type="date"
-              id="startDate"
-              name="startDate"
-              value={formData.startDate}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="endDate">End Date</label>
-            <input
-              type="date"
-              id="endDate"
-              name="endDate"
-              value={formData.endDate}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="phone">Phone Number</label>
-            <input
-              type="text"
-              id="phone"
-              name="phone"
-              placeholder="01348587455"
-              value={formData.phone}
-              onChange={handleChange}
-              required
-            />
-          </div>
-        <div className="form-group">
-          <label htmlFor="amount">Amount</label>
-          <input
-            type="number"
-            id="amount"
-            name="amount"
-            placeholder="200 EGP"
-            value={formData.amount}
-            onChange={handleChange}
-            required
-          />
-          </div>
-          <div className="form-group">
-            <label htmlFor="image">Subscriper Photo</label>
-            <input
-              type="file"
-              id="image"
-              name="image"
-              onChange={handleFileChange}
-            />
-          </div>
-        </form>
         </div>
-        <div className="form-btn">
-        <button type="submit"
-          onClick={handleSubmit}
-         >
-          {isEditMode ? "Update Subscriber" : "Add Subscriber"}
-        </button>
-
-          {isEditMode && (
-        <button type="button" onClick={handleCancelEdit}>
-            Cancel Edit
-        </button>
-          )}
-      </div>
-    </div>
-
-
-      {/* Search Subscribers */}
-      <div className="search-container">
-        <h2>Search Subscribers</h2>
-        <input
-          type="text"
-          placeholder="Search by ID or name..."
-          value={query}
-          onChange={handleSearch}
-        />
       </div>
 
       {/* Subscribers Table */}
       <div className="table-container">
-        <h2>Subscribers List</h2>
+        <div className="table-header">
+          <h2>Subscribers List</h2>
+          {/* Search Subscribers */}
+          <div className="search-container">
+            <input
+              type="text"
+              placeholder="Search by ID or name..."
+              value={query}
+              onChange={handleSearch}
+            />
+          </div>
+        </div>
         <table>
           <thead>
             <tr>

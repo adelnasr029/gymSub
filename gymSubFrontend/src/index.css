@@ -207,7 +207,7 @@ button:hover {
 .form-btn {
   display: flex;
   gap: 10px; /* Space between buttons */
-  margin-top: 20px; /* Space above the buttons */
+  margin: 15px ; /* Space above the buttons */
 }
 
 /* Base button styles */
@@ -244,22 +244,10 @@ button:hover {
 
 /* Container for the search section */
 .search-container {
-  margin: 20px 0;
-  padding: 20px;
   background-color: #f9f9f9;
   border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-/* Heading for the search section */
-.search-container h2 {
-  font-size: 1.5rem;
-  color: #333;
-  margin-bottom: 15px;
-  text-align: center;
+  max-width: 300px;
+  justify-content: center;
 }
 
 /* Search input field */
@@ -268,7 +256,6 @@ button:hover {
   padding: 10px 15px;
   font-size: 1rem;
   border: 2px solid #ddd;
-  border-radius: 4px;
   outline: none;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
@@ -283,22 +270,6 @@ button:hover {
 .search-container input[type="text"]::placeholder {
   color: #999;
   font-style: italic;
-}
-
-/* Responsive design for smaller screens */
-@media (max-width: 768px) {
-  .search-container {
-    padding: 15px;
-  }
-
-  .search-container h2 {
-    font-size: 1.25rem;
-  }
-
-  .search-container input[type="text"] {
-    font-size: 0.9rem;
-    padding: 8px 12px;
-  }
 }
 
 /* Table Styles */
@@ -827,4 +798,53 @@ form button[type="submit"]:disabled {
   padding: 5px;
   border: 1px solid #ccc;
   border-radius: 4px;
+}
+
+/* Base styles for the table container */
+.table-container {
+  width: 100%;
+  max-width: 1200px; /* Adjust as needed */
+  margin: 0 auto; /* Center the container */
+  padding: 20px;
+}
+
+/* Styles for the header and search container */
+.table-container h2 {
+  margin: 0; /* Remove default margin */
+}
+
+.search-container {
+  display: flex;
+  align-items: center; /* Vertically center the search input */
+}
+
+/* Flexbox layout for the heading and search container */
+.table-header {
+  display: flex;
+  align-items: center; /* Vertically center the heading and search */
+  justify-content: flex-start; /* Space out the heading and search */
+  margin-bottom: 20px; /* Add spacing below the header */
+  gap: 20px;
+}
+
+/* Styles for the search input */
+.search-container input {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* Optional: Add responsive behavior */
+@media (max-width: 768px) {
+  .table-header {
+    flex-direction: column; /* Stack heading and search vertically on mobile */
+    align-items: flex-start; /* Align items to the start */
+  }
+
+  .search-container {
+    width: 100%; /* Full width on mobile */
+  }
+
+  .search-container input {
+    width: 100%; /* Full width on mobile */
+  }
 }

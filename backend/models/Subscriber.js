@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const PostSchema = new mongoose.Schema({
+const SubscriberSchema = new mongoose.Schema({
   firstName: {
     type: String,
     required: true,
@@ -48,8 +48,7 @@ const PostSchema = new mongoose.Schema({
 });
 
 
-PostSchema.pre("save", function (next) {
-  const now = new Date();
+SubscriberSchema.pre("save", function () {
 
   // Calculate the number of days for the current subscription period
   if (this.startDate && this.endDate) {
@@ -68,4 +67,4 @@ PostSchema.pre("save", function (next) {
 
 });
 
-module.exports = mongoose.model("Post", PostSchema);
+module.exports = mongoose.model("Subscriber", SubscriberSchema);
