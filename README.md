@@ -1,4 +1,5 @@
 # GymSubs
+![subs-manage](https://github.com/user-attachments/assets/770be37f-caec-448d-8622-a390db89995f)
 
 GymSubs is a subscription management system designed for gym owners to manage client subscriptions efficiently. It allows gym owners to track subscription statuses (active, expired, pending) and notify clients about upcoming subscription expirations or due dates. The system is built using **Node.js**, **Express.js**, **MongoDB**, and **React**.
 
