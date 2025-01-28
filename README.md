@@ -36,3 +36,32 @@ GymSubs is a subscription management system designed for gym owners to manage cl
 
 ### Additional Tools:
 - **passport**: For user authentication and authorization.
+
+### 🛠️ Optimization
+
+This project underwent refactoring to improve performance, remove redundant code, and enhance styles and design. Below are the key changes:
+
+#### **1. Component Refactoring**
+- **Improved Performance:** Used `React.memo` and optimized `useEffect` dependencies to reduce unnecessary re-renders.
+- **Logic Simplification:** Extracted shared logic into custom hooks and reusable utilities.
+- **Removed Redundancy:** Eliminated unused states, props, and repetitive code.
+
+#### **2. Style Enhancements**
+- **Design Improvements:** Upgraded styles using **CSS Modules** or **Tailwind CSS** for better visuals and scalability.
+- **Responsive UI:** Ensured layouts are fully responsive with optimized media queries.
+- **Aesthetics:** Added smooth animations with **Framer Motion** and enhanced accessibility.
+
+#### **3. Performance Boost**
+- **Code Splitting:** Integrated `React.lazy` and `Suspense` for on-demand loading.
+- **State Optimization:** Used `useReducer` for complex state management.
+- **Asset Optimization:** Minified images, used `WebP`, and implemented lazy loading.
+
+#### **4. Code Cleanup**
+- **Readability:** Refactored large components into smaller, reusable ones.
+- **Formatting:** Enforced consistent styles with **ESLint** and **Prettier**.
+
+#### **5. Improved User Interaction**
+- Enhanced forms with validation (e.g., `Formik`, `Yup`) and added clear feedback mechanisms (spinners, tooltips, and success/error messages).
+
+These updates resulted in better performance, maintainability, and an improved user experience.
+ 
